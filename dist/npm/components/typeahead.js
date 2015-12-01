@@ -4,6 +4,7 @@ var React = require('react'),
     ReactDOM = require('react-dom'),
     Input = require('./input'),
     AriaStatus = require('./aria_status'),
+    $ = require('jquery'),
     getTextDirection = require('../utils/get_text_direction'),
     noop = function noop() {};
 
@@ -221,7 +222,7 @@ module.exports = React.createClass({
             return null;
         }
 
-        var inputOffset = ReactDOM.findDOMNode(this).find('react-typeahead-input').offset();
+        var inputOffset = $(ReactDOM.findDOMNode(this)).find('.react-typeahead-input').offset();
         var style = {
             width: '100%',
             background: '#fff',
@@ -231,7 +232,7 @@ module.exports = React.createClass({
         };
         if (inputOffset) {
             style.left = inputOffset.left;
-            style.top = inputOffset.top;
+            style.top = inputOffset.top + 25;
         }
 
         ReactDOM.render(React.createElement(
