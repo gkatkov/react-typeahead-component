@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react'),
+    ReactDOM = require('react-dom'),
     Input = require('./input.jsx'),
     AriaStatus = require('./aria_status.jsx'),
     getTextDirection = require('../utils/get_text_direction'),
@@ -95,6 +96,9 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
+        this.dropdownPopup = document.createElement("div");
+        document.body.appendChild(this.dropdownPopup);
+
         var addEvent = window.addEventListener,
             handleWindowClose = this.handleWindowClose;
 
@@ -219,18 +223,25 @@ module.exports = React.createClass({
             return null;
         }
 
-        return (
-            <ul id={_this.optionsId}
+        var inputOffset = ReactDOM.findDOMNode(this).find('react-typeahead-input').offset();
+        var style = {
+            width: '100%',
+            background: '#fff',
+            position: 'absolute',
+            boxSizing: 'border-box',
+            display: isDropdownVisible ? 'block' : 'none'
+        };
+        if(inputOffset) {
+            style.left = inputOffset.left;
+            style.top = inputOffset.top;
+        }
+
+        ReactDOM.render(
+            (<ul id={_this.optionsId}
                 ref='dropdown'
                 role='listbox'
                 aria-hidden={!isDropdownVisible}
-                style={{
-                    width: '100%',
-                    background: '#fff',
-                    position: 'absolute',
-                    boxSizing: 'border-box',
-                    display: isDropdownVisible ? 'block' : 'none'
-                }}
+                style={style}
                 className='react-typeahead-options'
                 onMouseOut={this.handleMouseOut}>
                 {
@@ -256,8 +267,8 @@ module.exports = React.createClass({
                         );
                     })
                 }
-            </ul>
-        );
+            </ul>), this.dropdownPopup);
+        return null;
     },
 
     renderAriaMessageForOptions: function() {
