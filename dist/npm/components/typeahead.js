@@ -2,10 +2,10 @@
 
 var React = require('react'),
     ReactDOM = require('react-dom'),
-    Input = require('./input'),
-    AriaStatus = require('./aria_status'),
-    $ = require('jquery'),
+    Input = require('./input.js'),
+    AriaStatus = require('./aria_status.js'),
     getTextDirection = require('../utils/get_text_direction'),
+    $ = require('jquery'),
     noop = function noop() {};
 
 module.exports = React.createClass({
@@ -95,9 +95,6 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        this.dropdownPopup = document.createElement("div");
-        document.body.appendChild(this.dropdownPopup);
-
         var addEvent = window.addEventListener,
             handleWindowClose = this.handleWindowClose;
 
@@ -235,37 +232,40 @@ module.exports = React.createClass({
             style.top = inputOffset.top + 25;
         }
 
-        ReactDOM.render(React.createElement(
-            'ul',
-            { id: _this.optionsId,
-                ref: 'dropdown',
-                role: 'listbox',
-                'aria-hidden': !isDropdownVisible,
-                style: style,
-                className: 'react-typeahead-options',
-                onMouseOut: this.handleMouseOut },
-            props.options.map(function (data, index) {
-                var isSelected = selectedIndex === index;
+        return React.createElement(
+            RenderInBody,
+            null,
+            React.createElement(
+                'ul',
+                { id: _this.optionsId,
+                    ref: 'dropdown',
+                    role: 'listbox',
+                    'aria-hidden': !isDropdownVisible,
+                    style: style,
+                    className: 'react-typeahead-options',
+                    onMouseOut: this.handleMouseOut },
+                props.options.map(function (data, index) {
+                    var isSelected = selectedIndex === index;
 
-                return React.createElement(
-                    'li',
-                    { id: isSelected ? activeDescendantId : null,
-                        'aria-selected': isSelected,
-                        role: 'option',
-                        key: index,
-                        onClick: _this.handleOptionClick.bind(_this, index),
-                        onMouseOver: _this.handleOptionMouseOver.bind(_this, index) },
-                    React.createElement(OptionTemplate, {
-                        data: data,
-                        index: index,
-                        userInputValue: _this.userInputValue,
-                        inputValue: props.inputValue,
-                        isSelected: isSelected
-                    })
-                );
-            })
-        ), this.dropdownPopup);
-        return null;
+                    return React.createElement(
+                        'li',
+                        { id: isSelected ? activeDescendantId : null,
+                            'aria-selected': isSelected,
+                            role: 'option',
+                            key: index,
+                            onClick: _this.handleOptionClick.bind(_this, index),
+                            onMouseOver: _this.handleOptionMouseOver.bind(_this, index) },
+                        React.createElement(OptionTemplate, {
+                            data: data,
+                            index: index,
+                            userInputValue: _this.userInputValue,
+                            inputValue: props.inputValue,
+                            isSelected: isSelected
+                        })
+                    );
+                })
+            )
+        );
     },
 
     renderAriaMessageForOptions: function renderAriaMessageForOptions() {
@@ -349,7 +349,7 @@ module.exports = React.createClass({
     },
 
     focus: function focus() {
-        this.refs.input.getDOMNode().focus();
+        ReactDOM.findDOMNode(this.refs.input).focus();
     },
 
     handleFocus: function handleFocus(event) {
@@ -450,7 +450,7 @@ module.exports = React.createClass({
 
                                 optionData = props.options[selectedIndex];
                                 // Make selected option always scroll to visible
-                                dropdown = React.findDOMNode(_this.refs.dropdown);
+                                dropdown = ReactDOM.findDOMNode(_this.refs.dropdown);
                                 selectedOption = dropdown.children[selectedIndex];
                                 optionOffsetTop = selectedOption.offsetTop;
                                 if (optionOffsetTop + selectedOption.clientHeight > dropdown.clientHeight || optionOffsetTop < dropdown.scrollTop) {
@@ -504,10 +504,38 @@ module.exports = React.createClass({
     handleWindowClose: function handleWindowClose(event) {
         var _this = this,
             target = event.target;
-
-        if (target !== window && !this.getDOMNode().contains(target)) {
+        if (target !== window && !ReactDOM.findDOMNode(this).contains(target)) {
             _this.hideHint();
             _this.hideDropdown();
         }
     }
+});
+
+var RenderInBody = React.createClass({
+    displayName: 'RenderInBody',
+
+    componentDidMount: function componentDidMount() {
+        this.popup = document.createElement("div");
+        document.body.appendChild(this.popup);
+        this._renderLayer();
+    },
+
+    componentDidUpdate: function componentDidUpdate() {
+        this._renderLayer();
+    },
+
+    componentWillUnmount: function componentWillUnmount() {
+        React.unmountComponentAtNode(this.popup);
+        document.body.removeChild(this.popup);
+    },
+
+    _renderLayer: function _renderLayer() {
+        ReactDOM.render(this.props.children, this.popup);
+    },
+
+    render: function render() {
+        // Render a placeholder
+        return React.DOM.div(this.props);
+    }
+
 });

@@ -1,6 +1,9 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 module.exports = React.createClass({
     displayName: 'Input',
@@ -10,14 +13,14 @@ module.exports = React.createClass({
         onChange: React.PropTypes.func
     },
 
-    getDefaultProps: function() {
+    getDefaultProps: function getDefaultProps() {
         return {
             value: '',
-            onChange: function() {}
+            onChange: function onChange() {}
         };
     },
 
-    componentDidUpdate: function() {
+    componentDidUpdate: function componentDidUpdate() {
         var _this = this,
             dir = _this.props.dir;
 
@@ -28,22 +31,19 @@ module.exports = React.createClass({
             // This is not desired because of a possible bug in Chrome.
             // If the page is RTL, and the input's `dir` attribute is set
             // to an empty string, Chrome assumes LTR, which isn't what we want.
-            React.findDOMNode(_this).removeAttribute('dir');
+            ReactDOM.findDOMNode(_this).removeAttribute('dir');
         }
     },
 
-    render: function() {
+    render: function render() {
         var _this = this;
 
-        return (
-            React.createElement("input", React.__spread({}, 
-                _this.props, 
-                {onChange: _this.handleChange})
-            )
-        );
+        return React.createElement('input', _extends({}, _this.props, {
+            onChange: _this.handleChange
+        }));
     },
 
-    handleChange: function(event) {
+    handleChange: function handleChange(event) {
         var props = this.props;
 
         // There are several React bugs in IE,
@@ -56,16 +56,15 @@ module.exports = React.createClass({
         }
     },
 
-    blur: function() {
-        React.findDOMNode(this).blur();
+    blur: function blur() {
+        ReactDOM.findDOMNode(this).blur();
     },
 
-    isCursorAtEnd: function() {
+    isCursorAtEnd: function isCursorAtEnd() {
         var _this = this,
-            inputDOMNode = React.findDOMNode(_this),
+            inputDOMNode = ReactDOM.findDOMNode(_this),
             valueLength = _this.props.value.length;
 
-        return inputDOMNode.selectionStart === valueLength &&
-               inputDOMNode.selectionEnd === valueLength;
+        return inputDOMNode.selectionStart === valueLength && inputDOMNode.selectionEnd === valueLength;
     }
 });

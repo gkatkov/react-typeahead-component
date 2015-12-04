@@ -1,1 +1,3 @@
-module.exports = require('./components/typeahead');
+'use strict';
+
+module.exports = require('./components/typeahead.js');

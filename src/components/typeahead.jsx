@@ -97,9 +97,6 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
-        this.dropdownPopup = document.createElement("div");
-        document.body.appendChild(this.dropdownPopup);
-
         var addEvent = window.addEventListener,
             handleWindowClose = this.handleWindowClose;
 
@@ -237,8 +234,8 @@ module.exports = React.createClass({
             style.top = inputOffset.top + 25;
         }
 
-        ReactDOM.render(
-            (<ul id={_this.optionsId}
+        return (<RenderInBody>
+            <ul id={_this.optionsId}
                 ref='dropdown'
                 role='listbox'
                 aria-hidden={!isDropdownVisible}
@@ -250,26 +247,26 @@ module.exports = React.createClass({
                         var isSelected = selectedIndex === index;
 
                         return (
-                            <li id={isSelected ? activeDescendantId : null}
-                                aria-selected={isSelected}
-                                role='option'
-                                key={index}
-                                onClick={_this.handleOptionClick.bind(_this, index)}
-                                onMouseOver={_this.handleOptionMouseOver.bind(_this, index)}>
+                        <li id={isSelected ? activeDescendantId : null}
+                            aria-selected={isSelected}
+                            role='option'
+                            key={index}
+                            onClick={_this.handleOptionClick.bind(_this, index)}
+                            onMouseOver={_this.handleOptionMouseOver.bind(_this, index)}>
 
-                                <OptionTemplate
-                                    data={data}
-                                    index={index}
-                                    userInputValue={_this.userInputValue}
-                                    inputValue={props.inputValue}
-                                    isSelected={isSelected}
-                                />
-                            </li>
-                        );
-                    })
-                }
-            </ul>), this.dropdownPopup);
-        return null;
+                            <OptionTemplate
+                                data={data}
+                                index={index}
+                                userInputValue={_this.userInputValue}
+                                inputValue={props.inputValue}
+                                isSelected={isSelected}
+                            />
+                        </li>
+                            );
+                        })
+                    }
+            </ul>
+        </RenderInBody>);
     },
 
     renderAriaMessageForOptions: function() {
@@ -357,7 +354,7 @@ module.exports = React.createClass({
     },
 
     focus: function() {
-        this.refs.input.getDOMNode().focus();
+        ReactDOM.findDOMNode(this.refs.input).focus();
     },
 
     handleFocus: function(event) {
@@ -458,7 +455,7 @@ module.exports = React.createClass({
 
                             optionData = props.options[selectedIndex];
                             // Make selected option always scroll to visible
-                            dropdown = React.findDOMNode(_this.refs.dropdown);
+                            dropdown = ReactDOM.findDOMNode(_this.refs.dropdown);
                             selectedOption = dropdown.children[selectedIndex];
                             optionOffsetTop = selectedOption.offsetTop;
                             if(optionOffsetTop + selectedOption.clientHeight > dropdown.clientHeight ||
@@ -513,10 +510,41 @@ module.exports = React.createClass({
     handleWindowClose: function(event) {
         var _this = this,
             target = event.target;
-
-        if (target !== window && !this.getDOMNode().contains(target)) {
+        if (target !== window && !ReactDOM.findDOMNode(this).contains(target)) {
             _this.hideHint();
             _this.hideDropdown();
         }
     }
+});
+
+var RenderInBody = React.createClass({
+
+    componentDidMount: function() {
+        this.popup = document.createElement("div");
+        document.body.appendChild(this.popup);
+        this._renderLayer();
+    },
+
+
+    componentDidUpdate: function() {
+        this._renderLayer();
+    },
+
+
+    componentWillUnmount: function() {
+        React.unmountComponentAtNode(this.popup);
+        document.body.removeChild(this.popup);
+    },
+
+
+    _renderLayer: function() {
+        ReactDOM.render(this.props.children, this.popup);
+    },
+
+
+    render: function() {
+        // Render a placeholder
+        return React.DOM.div(this.props);
+    }
+
 });

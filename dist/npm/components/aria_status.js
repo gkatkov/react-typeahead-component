@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 module.exports = React.createClass({
     displayName: 'Aria Status',
@@ -9,7 +10,7 @@ module.exports = React.createClass({
         message: React.PropTypes.string
     },
 
-    componentDidMount: function() {
+    componentDidMount: function componentDidMount() {
         var _this = this;
 
         // This is needed as `componentDidUpdate`
@@ -17,30 +18,28 @@ module.exports = React.createClass({
         _this.setTextContent(_this.props.message);
     },
 
-    componentDidUpdate: function() {
+    componentDidUpdate: function componentDidUpdate() {
         var _this = this;
 
         _this.setTextContent(_this.props.message);
     },
 
-    render: function() {
-        return (
-            React.createElement("span", {
-                role: "status", 
-                "aria-live": "polite", 
-                style: {
-                    left: '-9999px',
-                    position: 'absolute'
-                }}
-            )
-        );
+    render: function render() {
+        return React.createElement('span', {
+            role: 'status',
+            'aria-live': 'polite',
+            style: {
+                left: '-9999px',
+                position: 'absolute'
+            }
+        });
     },
 
     // We cannot set `textContent` directly in `render`,
     // because React adds/deletes text nodes when rendering,
     // which confuses screen readers and doesn't cause them to read changes.
-    setTextContent: function(textContent) {
+    setTextContent: function setTextContent(textContent) {
         // We could set `innerHTML`, but it's better to avoid it.
-        this.getDOMNode().textContent = textContent || '';
+        ReactDOM.findDOMNode(this).textContent = textContent || '';
     }
 });
