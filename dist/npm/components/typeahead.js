@@ -114,6 +114,10 @@ module.exports = React.createClass({
         removeEvent('click', handleWindowClose, false);
     },
 
+    componentDidUpdate: function componentDidUpdate() {
+        this.inputOffset = $(ReactDOM.findDOMNode(this)).find('.react-typeahead-input').offset();
+    },
+
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
         var nextValue = nextProps.inputValue,
             nextOptions = nextProps.options,
@@ -219,7 +223,6 @@ module.exports = React.createClass({
             return null;
         }
 
-        var inputOffset = $(ReactDOM.findDOMNode(this)).find('.react-typeahead-input').offset();
         var style = {
             width: '100%',
             background: '#fff',
@@ -227,9 +230,9 @@ module.exports = React.createClass({
             boxSizing: 'border-box',
             display: isDropdownVisible ? 'block' : 'none'
         };
-        if (inputOffset) {
-            style.left = inputOffset.left;
-            style.top = inputOffset.top + 25;
+        if (this.inputOffset) {
+            style.left = this.inputOffset.left;
+            style.top = this.inputOffset.top + 25;
         }
 
         return React.createElement(
@@ -525,7 +528,7 @@ var RenderInBody = React.createClass({
     },
 
     componentWillUnmount: function componentWillUnmount() {
-        React.unmountComponentAtNode(this.popup);
+        ReactDOM.unmountComponentAtNode(this.popup);
         document.body.removeChild(this.popup);
     },
 
